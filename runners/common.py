@@ -61,7 +61,10 @@ def build_spec_and_operator(args: argparse.Namespace) -> tuple[SparsePauliOp, in
     ham = get_hamiltonian(args.hamiltonian)
     spec = spec_from_args(ham, args)
     operator = ham.build_operator(spec)
-    return operator, spec.n_qubits  # type: ignore[attr-defined]
+    n_qubits = getattr(spec, "n_qubits", None)
+    if n_qubits is None:
+        n_qubits = operator.num_qubits
+    return operator, n_qubits
 
 
 def build_ansatz(name: str, n_qubits: int, reps: int) -> QuantumCircuit:

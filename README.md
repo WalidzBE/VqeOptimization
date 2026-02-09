@@ -25,6 +25,24 @@ python -m runners.run_simulation \
   --seed 123
 ```
 
+Run chemistry (H2O) with parity mapping + tapering:
+
+```bash
+python -m runners.run_simulation \
+  --hamiltonian chemistry \
+  --molecule h2o \
+  --basis sto3g \
+  --active_electrons 6 \
+  --active_orbitals 5 \
+  --mapper parity \
+  --taper \
+  --taper_sector 0 \
+  --ansatz two_local --reps 2 \
+  --optimizer cobyla --maxiter 200 \
+  --shots 4000 \
+  --seed 123
+```
+
 Run a benchmark (repeated runs + circuit metrics):
 
 ```bash
@@ -63,6 +81,41 @@ Run tests:
 ```bash
 pytest
 ```
+
+## Scripts and parameters
+
+Available scripts:
+- `python -m runners.run_simulation`
+- `python -m runners.run_benchmark`
+- `python -m runners.run_hardware`
+
+Common parameters:
+- `--hamiltonian` (default `tfim`)
+- `--ansatz` (`efficient_su2`, `two_local`)
+- `--reps`
+- `--optimizer` (`cobyla`, `spsa`)
+- `--maxiter`
+- `--shots`
+- `--seed`
+
+TFIM parameters:
+- `--n_qubits`
+- `--J`
+- `--h`
+- `--boundary` (`open`, `periodic`)
+
+Chemistry parameters (H2O supported):
+- `--molecule` (`h2o`)
+- `--basis`
+- `--charge`
+- `--spin`
+- `--unit` (`angstrom`)
+- `--freeze_core` / `--no-freeze_core`
+- `--active_electrons`
+- `--active_orbitals`
+- `--mapper` (`jw`, `parity`)
+- `--taper` / `--no-taper`
+- `--taper_sector`
 
 ## Project layout
 

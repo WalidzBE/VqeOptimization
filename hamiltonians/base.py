@@ -54,6 +54,8 @@ def _literal_choices(annotation: Any) -> Sequence[str] | None:
 def _argparse_type(annotation: Any) -> type:
     origin = get_origin(annotation)
     if origin is None:
+        if annotation is bool:
+            return bool
         return annotation if annotation in (int, float, str) else str
     if origin is Union:
         args = [arg for arg in get_args(annotation) if arg is not type(None)]
@@ -78,7 +80,11 @@ def add_hamiltonian_args(parser: Any, ham: Hamiltonian) -> None:
         arg_type = _argparse_type(annotation)
         arg_name = f"--{field.name}"
         kwargs: dict[str, Any] = {}
-        if choices is not None:
+        if arg_type is bool:
+            import argparse
+
+            kwargs["action"] = argparse.BooleanOptionalAction
+        elif choices is not None:
             kwargs["choices"] = choices
             kwargs["type"] = str
         else:
