@@ -1,0 +1,27 @@
+[project]
+name = "vqe-optimization"
+version = "0.1.0"
+description = "Modular TFIM Hamiltonian + VQE runners using Qiskit primitives."
+requires-python = ">=3.10,<3.13"
+dependencies = [
+  "qiskit==1.2.4",
+  "qiskit-aer==0.14.2",
+  "qiskit-algorithms==0.3.0",
+  "qiskit-ibm-runtime==0.24.0",
+  "numpy==1.26.4",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest==8.3.2",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["hamiltonians*", "runners*"]
