@@ -10,16 +10,9 @@ dependencies = [
   "qiskit-ibm-runtime==0.24.0",
   "qiskit-nature==0.7.2",
   "pyscf==2.6.1",
+  "matplotlib==3.9.2",
   "numpy==1.26.4",
 ]
-
-[project.optional-dependencies]
-dev = [
-  "pytest==8.3.2",
-]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
 
 [build-system]
 requires = ["setuptools>=68.0.0", "wheel"]
