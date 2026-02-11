@@ -93,6 +93,42 @@ Notes:
 - `QISKIT_IBM_TOKEN` is read by `QiskitRuntimeService` (no secrets in code).
 - If you do not pass `--shots`, the estimator uses its default (statevector for Aer in most configs).
 
+## Lagrange (IQM) setup
+
+Install IQM/Lagrange dependencies (outside the project environment is fine if you use Jupyter):
+
+```bash
+uv pip install iqm-client[qiskit]==29.14 --quiet
+uv pip install qrisp --quiet
+uv pip install lagrangeclient --index-url https://gitlab.linksfoundation.com/api/v4/projects/1709/packages/pypi/simple
+uv pip install pylatexenc --quiet
+```
+
+Authenticate once and store a token:
+
+```bash
+python -m lagrangeclient
+```
+
+Run the TFIM scan on Lagrange (IQM backend):
+
+```bash
+python -m runners.run_tfim_scan \
+  --n_qubits 4 --J 1.0 --boundary open \
+  --ratio_start 0.2 --ratio_end 1.8 --num_points 9 \
+  --ansatz efficient_su2 --reps 2 --optimizer cobyla --maxiter 200 \
+  --shots 2048 --no-exact \
+  --estimator iqm \
+  --iqm_url https://spark.quantum.linksfoundation.com/station \
+  --iqm_tokens_file ./tokens.json
+```
+
+Optional (IQM MOVE mapping):
+
+```bash
+python -m runners.run_tfim_scan --estimator iqm --iqm_naive_move ...
+```
+
 ## References
 
 - https://www.arxiv.org/pdf/2601.17515
@@ -102,7 +138,6 @@ Notes:
 Available scripts:
 - `python -m runners.run_simulation`
 - `python -m runners.run_benchmark`
-- `python -m runners.run_hardware`
 - `python -m runners.run_tfim_scan`
 
 Common parameters:
@@ -159,7 +194,6 @@ Chemistry parameters (H2O supported):
 │   ├── __init__.py
 │   ├── common.py
 │   ├── run_simulation.py
-│   ├── run_hardware.py
 │   └── run_benchmark.py
 └── tests/
     └── test_tfim.py

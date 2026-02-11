@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import argparse
+import logging
+import os
 import time
 from typing import Any, Callable
 
@@ -16,6 +18,9 @@ from qiskit_algorithms.utils import algorithm_globals
 import hamiltonians  # noqa: F401
 from hamiltonians.base import add_hamiltonian_args, get_hamiltonian, spec_from_args
 
+
+LOGGER = logging.getLogger(__name__)
+DEFAULT_IQM_URL = "https://spark.quantum.linksfoundation.com/station"
 
 ANSATZ_FACTORIES: dict[str, Callable[[int, int], QuantumCircuit]] = {
     "efficient_su2": lambda n, reps: EfficientSU2(num_qubits=n, reps=reps, entanglement="linear"),
@@ -45,6 +50,14 @@ def build_base_parser(description: str, add_hamiltonian: bool = True) -> argpars
     parser.add_argument("--shots", type=int, default=None)
     parser.add_argument("--seed", type=int, default=None)
     return parser
+
+
+def add_iqm_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--estimator", default="aer", choices=["aer", "iqm"])
+    parser.add_argument("--iqm_url", default=None)
+    parser.add_argument("--iqm_backend", default=None)
+    parser.add_argument("--iqm_tokens_file", default=None)
+    parser.add_argument("--iqm_naive_move", action=argparse.BooleanOptionalAction, default=False)
 
 
 def build_parser_with_hamiltonian(description: str, argv: list[str]) -> argparse.Namespace:
@@ -79,6 +92,53 @@ def build_optimizer(name: str, maxiter: int, seed: int | None) -> Any:
     return OPTIMIZER_FACTORIES[name](maxiter, seed)
 
 
+def build_iqm_estimator(
+    *,
+    iqm_url: str | None,
+    iqm_backend: str | None,
+    iqm_tokens_file: str | None,
+    naive_move: bool,
+    shots: int | None,
+    circuit: QuantumCircuit | None = None,
+) -> tuple[Any, QuantumCircuit | None, dict[str, Any]]:
+    try:
+        from iqm.qiskit_iqm import IQMProvider, iqm_naive_move_pass
+        from qiskit.primitives import BackendEstimator
+    except Exception as exc:  # pragma: no cover - optional dependency
+        raise SystemExit(
+            "iqm-client[qiskit] is required for IQM hardware runs. "
+            "Install it with: uv pip install iqm-client[qiskit]==29.14"
+        ) from exc
+
+    if iqm_tokens_file:
+        os.environ["IQM_TOKENS_FILE"] = iqm_tokens_file
+
+    resolved_url = iqm_url or os.environ.get("IQM_URL") or DEFAULT_IQM_URL
+    provider = IQMProvider(resolved_url)
+    backend = provider.get_backend(iqm_backend) if iqm_backend else provider.get_backend()
+
+    options = {"shots": shots} if shots is not None else None
+    estimator = BackendEstimator(
+        backend=backend,
+        options=options,
+        skip_transpilation=naive_move,
+    )
+
+    updated_circuit = circuit
+    if circuit is not None and naive_move:
+        updated_circuit = iqm_naive_move_pass.transpile_to_IQM(circuit, backend=backend)
+
+    backend_name = getattr(backend, "name", None)
+    backend_label = backend_name() if callable(backend_name) else backend_name or str(backend)
+
+    meta = {
+        "iqm_url": resolved_url,
+        "iqm_backend": backend_label,
+        "iqm_naive_move": naive_move,
+    }
+    return estimator, updated_circuit, meta
+
+
 def run_vqe(
     operator: SparsePauliOp,
     ansatz: QuantumCircuit,
@@ -97,11 +157,13 @@ def run_vqe(
     start = time.perf_counter()
     last_eval = start
 
-    def callback(eval_count: int, params: np.ndarray, mean: float, stddev: float) -> None:
+    def callback(eval_count: int, params: np.ndarray, mean: float, meta_or_stddev: Any) -> None:
         nonlocal last_eval
         now = time.perf_counter()
         eval_times.append(now - last_eval)
         last_eval = now
+        if LOGGER.isEnabledFor(logging.INFO):
+            LOGGER.info("VQE eval %s", eval_count)
 
     vqe = VQE(
         estimator=estimator,

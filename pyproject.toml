@@ -2,13 +2,14 @@
 name = "vqe-optimization"
 version = "0.1.0"
 description = "Modular TFIM Hamiltonian + VQE runners using Qiskit primitives."
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.11,<3.13"
 dependencies = [
   "qiskit==1.2.4",
   "qiskit-aer==0.14.2",
   "qiskit-algorithms==0.3.0",
   "qiskit-ibm-runtime==0.24.0",
   "qiskit-nature==0.7.2",
+  "iqm-client[qiskit]==29.14",
   "pyscf==2.6.1",
   "matplotlib==3.9.2",
   "numpy==1.26.4",
