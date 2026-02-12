@@ -2,6 +2,8 @@
 
 Modular Transverse-Field Ising Model (TFIM) Hamiltonian and VQE runners using the latest Qiskit primitives.
 
+Docs: https://WalidzBE.github.io/VqeOptimization/
+
 ## Quickstart (uv)
 
 Create a Python 3.10–3.12 environment and install dependencies:
