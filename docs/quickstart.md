@@ -1,7 +1,7 @@
 # Quickstart
 
 ## Minimal Working Example
-Run a single TFIM VQE simulation using the Aer estimator:
+Run a single TFIM VQE simulation using the Aer estimator (any Hamiltonian you add under `hamiltonians/` works the same way):
 
 ```bash
 python -m runners.run_simulation \
@@ -14,6 +14,21 @@ python -m runners.run_simulation \
 ```
 
 The command prints a JSON payload with the estimated ground energy, optimal parameters, and metadata.
+
+## Run on IQM (Hardware)
+Switch the estimator to IQM hardware (tokens stored in a file):
+
+```bash
+python -m runners.run_simulation \
+  --hamiltonian tfim \
+  --n_qubits 4 --J 1.0 --h 0.7 --boundary open \
+  --ansatz efficient_su2 --reps 2 \
+  --optimizer cobyla --maxiter 200 \
+  --shots 2048 \
+  --estimator iqm \
+  --iqm_url https://spark.quantum.linksfoundation.com/station \
+  --iqm_tokens_file ./tokens.json
+```
 
 ## TFIM Scan
 Scan the TFIM ground-state energy as a function of $h/J$:

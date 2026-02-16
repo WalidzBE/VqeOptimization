@@ -1,7 +1,7 @@
 # Examples Overview
 
-This page collects representative workflows using the provided CLI runners. Each example mirrors the arguments
-validated in code.
+This page collects representative workflows using the provided CLI runners. You can add any Hamiltonian by creating a
+module in `hamiltonians/`; once registered, it inherits the same CLI flow without extra quantum plumbing.
 
 ## TFIM Scan With Exact Diagonalization
 ```bash
@@ -54,5 +54,8 @@ python -m runners.run_simulation \
   --shots 2048 \
   --seed 123 \
   --estimator iqm \
-  --iqm_tokens_file ./tokens.json
+  --iqm_url https://spark.quantum.linksfoundation.com/station \
+  --iqm_backend nuwa \
+  --iqm_tokens_file ./tokens.json \
+  --iqm_naive_move
 ```

@@ -1,6 +1,9 @@
 # VQE Optimization (TFIM)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://WalidzBE.github.io/VqeOptimization/)
+[![Build](https://img.shields.io/github/actions/workflow/status/walidzbe/VqeOptimization/docs.yml?branch=main&label=build)](https://github.com/walidzbe/VqeOptimization/actions/workflows/docs.yml)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-Modular Transverse-Field Ising Model (TFIM) Hamiltonian and VQE runners using the latest Qiskit primitives.
+Modular VQE runners that let you plug in any Hamiltonian by dropping a module into `hamiltonians/`—no quantum-level wiring required. TFIM and chemistry examples are included out of the box, but the flow is generic.
 
 Docs: https://WalidzBE.github.io/VqeOptimization/
 
@@ -15,7 +18,7 @@ source .venv/bin/activate
 uv pip install -e ".[dev]"
 ```
 
-Run a VQE simulation (Aer estimator):
+Run a VQE simulation (Aer estimator; works with any registered Hamiltonian):
 
 ```bash
 python -m runners.run_simulation \
@@ -27,7 +30,7 @@ python -m runners.run_simulation \
   --seed 123
 ```
 
-Run chemistry (H2O) with parity mapping + tapering:
+Run chemistry (H2O) with parity mapping + tapering (illustrates adding a custom Hamiltonian module):
 
 ```bash
 python -m runners.run_simulation \
@@ -105,7 +108,22 @@ python -m runners.run_tfim_scan \
   --iqm_tokens_file ./tokens.json
 ```
 
-Optional (IQM MOVE mapping):
+Run a single VQE simulation on Lagrange (IQM backend):
+
+```bash
+python -m runners.run_simulation \
+  --hamiltonian tfim \
+  --n_qubits 4 --J 1.0 --h 0.7 --boundary open \
+  --ansatz efficient_su2 --reps 2 \
+  --optimizer cobyla --maxiter 200 \
+  --shots 2048 \
+  --seed 123 \
+  --estimator iqm \
+  --iqm_url https://spark.quantum.linksfoundation.com/station \
+  --iqm_tokens_file ./tokens.json
+```
+
+Optional (IQM MOVE mapping: add `--iqm_naive_move` to `run_tfim_scan` or `run_simulation`):
 
 ```bash
 python -m runners.run_tfim_scan --estimator iqm --iqm_naive_move ...
