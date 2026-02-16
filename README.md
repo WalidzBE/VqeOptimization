@@ -75,26 +75,6 @@ python -m runners.run_benchmark \
   --runs 3
 ```
 
-Run on hardware (inject backend):
-
-```bash
-export QISKIT_IBM_TOKEN="your_token"
-python -m runners.run_hardware \
-  --hamiltonian tfim \
-  --n_qubits 8 --J 1.0 --h 0.7 --boundary open \
-  --ansatz efficient_su2 --reps 2 \
-  --optimizer cobyla --maxiter 200 \
-  --shots 4000 \
-  --seed 123 \
-  --backend_name ibm_nairobi \
-  --ibm_channel ibm_quantum \
-  --ibm_instance your_hub/group/project
-```
-
-Notes:
-- `QISKIT_IBM_TOKEN` is read by `QiskitRuntimeService` (no secrets in code).
-- If you do not pass `--shots`, the estimator uses its default (statevector for Aer in most configs).
-
 ## Lagrange (IQM) setup
 
 Install IQM/Lagrange dependencies (outside the project environment is fine if you use Jupyter):
